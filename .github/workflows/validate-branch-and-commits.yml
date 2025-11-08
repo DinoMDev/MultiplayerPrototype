@@ -1,0 +1,34 @@
+name: Validate branch & commits
+
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          if [[ ! "$BRANCH_NAME" =~ ^(feat|fix|chore|refactor)\/[a-z0-9._-]+$ ]]; then
+            echo "❌ Branch name '$BRANCH_NAME' is invalid."
+            echo "✅ Must follow: feat/<name>, fix/<name>, chore/<topic>, refactor/<topic>"
+            exit 1
+          fi
+
+      - name: Validate commit messages
+        run: |
+          if ! git log origin/main..HEAD --pretty=%B | grep -E "^(feat|fix|chore|refactor)\([a-z0-9._-]+\): .+"; then
+            echo "❌ Invalid commit message found."
+            echo "✅ Format must be: feat(scope): message"
+            exit 1
+          fi
