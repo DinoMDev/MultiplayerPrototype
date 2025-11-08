@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+MSG_FILE="$1"
+MSG="$(head -n1 "$MSG_FILE")"
+
+# Allow merge & revert commits
+if [[ "$MSG" =~ ^Merge\  ]] || [[ "$MSG" =~ ^Revert\  ]]; then
+  exit 0
+fi
+
+REGEX='^(feat|fix|chore|refactor)\([a-z0-9-]+\): [[:print:]]{5,}$'
+if [[ ! "$MSG" =~ $REGEX ]]; then
+  echo ""
+  echo "❌ Invalid commit message:"
+  echo "    $MSG"
+  echo ""
+  echo "Required format:"
+  echo "    <type>(<scope>): <short summary>"
+  echo "Where <type> ∈ {feat, fix, chore, refactor}"
+  echo "Example: feat(player): add WASD movement with CharacterController"
+  echo ""
+  exit 1
+fi
+
+exit 0
