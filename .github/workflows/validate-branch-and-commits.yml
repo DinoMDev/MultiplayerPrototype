@@ -1,14 +1,14 @@
-name: Validate branch & commits
+name: CI – Branch & Commit Rules
 
 on:
   push:
-    branches-ignore:
-      - main
+    branches-ignore: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  lint:
+  rules:
+    name: rules
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
