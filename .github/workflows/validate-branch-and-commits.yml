@@ -1,14 +1,27 @@
+
 name: CI – Branch & Commit Rules
 
 on:
   push:
     branches-ignore: [ main ]
+=======
+name: Validate branch & commits
+
+on:
+  push:
+    branches-ignore:
+      - main
+ main
   pull_request:
     branches: [ main ]
 
 jobs:
+chore/ci-rename-check
   rules:
     name: rules
+
+  lint:
+main
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

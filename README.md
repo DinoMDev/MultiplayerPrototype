@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-"test" 
-=======
 # 🎮 Multiplayer Prototype
 
 A Unity-based multiplayer game prototype focused on testing networking, gameplay systems, and clean development practices using CI/CD, Git hooks, and branch protection rules.
@@ -75,4 +72,4 @@ This project enforces a **professional workflow** using branch naming convention
 
 This project is currently private and intended for educational and portfolio development use.
 
->>>>>>> bbeda82 (fix(readme): resolve merge conflict)
+
