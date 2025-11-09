@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+if [[ "$BRANCH" == "main" || "$BRANCH" == "dev" ]]; then
+  exit 0
+fi
+
+REGEX='^(feat|fix|chore|refactor)/[a-z0-9-]+$'
+if [[ ! "$BRANCH" =~ $REGEX ]]; then
+  echo ""
+  echo "❌ Invalid branch name: $BRANCH"
+  echo "Required format:"
+  echo "    <type>/<scope>"
+  echo "Examples:"
+  echo "    feat/player-movement"
+  echo "    fix/netcode-desync"
+  echo ""
+  exit 1
+fi
+
+exit 0
