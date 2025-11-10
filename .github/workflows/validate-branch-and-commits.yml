@@ -1,14 +1,12 @@
-name: Validate branch & commits
+name: branch-commit-policy
 
 on:
-  push:
-    branches-ignore:
-      - main
   pull_request:
-    branches: [ main ]
+    branches: [ main ]  # PRs into main only; no push trigger = no duplicate runs
 
 jobs:
-  lint:
+  branch-commit-policy:
+    name: branch-commit-policy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,18 +15,32 @@ jobs:
           fetch-depth: 0
 
       - name: Validate branch name
+        shell: bash
         run: |
           BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
           if [[ ! "$BRANCH_NAME" =~ ^(feat|fix|chore|refactor)\/[a-z0-9._-]+$ ]]; then
-            echo "❌ Branch name '$BRANCH_NAME' is invalid."
-            echo "✅ Must follow: feat/<name>, fix/<name>, chore/<topic>, refactor/<topic>"
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo "   Required: feat/<name> | fix/<name> | chore/<topic> | refactor/<topic>"
             exit 1
           fi
+          echo "✅ Branch OK: $BRANCH_NAME"
 
       - name: Validate commit messages
+        shell: bash
         run: |
-          if ! git log origin/main..HEAD --pretty=%B | grep -E "^(feat|fix|chore|refactor)\([a-z0-9._-]+\): .+"; then
-            echo "❌ Invalid commit message found."
-            echo "✅ Format must be: feat(scope): message"
+          # Compare PR head against main. Assumes origin/main exists from checkout -- fetch-depth: 0
+          COMMITS=$(git log --no-merges --pretty=%s origin/main..HEAD || true)
+          if [[ -z "$COMMITS" ]]; then
+            echo "ℹ️ No new commits vs main (rebased or empty)"; exit 0
+          fi
+
+          BAD=$(echo "$COMMITS" | grep -Ev '^(feat|fix|chore|refactor)\([a-z0-9._-]+\): .+' || true)
+          if [[ -n "$BAD" ]]; then
+            echo "❌ Bad commit subjects detected:"
+            echo "$BAD"
+            echo
+            echo "Format: <type>(<scope>): <message>"
+            echo "Types: feat | fix | chore | refactor"
             exit 1
           fi
+          echo "✅ Commit messages OK"
